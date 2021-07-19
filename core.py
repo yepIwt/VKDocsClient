@@ -4,7 +4,7 @@
 """
 
 import os
-import aiohttp
+import aiohttp, aiofiles
 import asyncio
 from vkwave.api import API
 from vkwave.client import AIOHTTPClient
@@ -58,3 +58,29 @@ class VKDocsCore:
 					'type': item.ext
  				}
 			)
+
+	async def download_file(self, owner_id: int, file_id: int, download_path: str):
+
+		param_docs = "{}_{}".format(owner_id, file_id)
+
+		if not os.access(download_path, os.R_OK):
+			return (False, 'Error dir')
+
+		vk_api_answer = await self.api.docs.get_by_id(docs = param_docs)
+		filename = vk_api_answer.response[0].title
+		url_to_download = vk_api_answer.response[0].url
+		
+		async with aiohttp.ClientSession() as session:
+			async with session.get(url_to_download) as resp:
+				file_in_stream = await resp.read()
+
+		await session.close()
+
+		save_file_to = os.path.join(download_path, filename)
+		print(save_file_to)
+
+		f = await aiofiles.open(save_file_to, 'wb')
+		await f.write(file_in_stream)
+		await f.close()
+
+		return (True, 'File downloaded')
