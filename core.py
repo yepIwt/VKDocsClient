@@ -84,3 +84,30 @@ class VKDocsCore:
 		await f.close()
 
 		return (True, 'File downloaded')
+
+	async def edit_file(self, owner_id: int, file_id: int, new_title = None, new_tags = None):
+
+		if not new_title and not new_tags:
+			return (False, 'No edit data')
+
+		param_docs = "{}_{}".format(owner_id, file_id)
+
+		vk_api_answer = await self.api.docs.get_by_id(docs = param_docs, return_tags = 1)
+
+		if not vk_api_answer.response:
+			return (False, 'No such file')
+
+		thats_file = vk_api_answer.response[0]
+		prev_title, prev_tags = thats_file.title, thats_file.tags
+
+		vk_api_answer = await self.api.docs.edit(
+			owner_id = owner_id,
+			doc_id = file_id,
+			title = new_title or prev_title,
+			tags = new_tags or prev_tags, 
+		)
+
+		if vk_api_answer.response == 1:
+			return (True, 'File edited')
+
+		return (False, vk_api_answer.response)
