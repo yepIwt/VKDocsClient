@@ -14,8 +14,9 @@ class VKDocsCore:
 	def __init__(self, api_key: str):
 		api_session = API(tokens = api_key, clients=AIOHTTPClient())
 		self.api = api_session.get_context()
+		self.all_files = []
 
-	async def upload_file(self, path, filename = None, tags = None):
+	async def upload_file(self, path, filename = None, tags = None) -> tuple:
 
 		vk_api_answer = await self.api.docs.get_upload_server()
 		url_for_upload = vk_api_answer.response.upload_url
@@ -39,3 +40,21 @@ class VKDocsCore:
 				title = filename or basename_file,
 				tags = tags or None,
 		)
+
+		return (True,'File Uploaded')
+
+	async def get_all_files(self) -> None:
+		self.all_files = []
+
+		vk_api_answer = await self.api.docs.get(return_tags = True)
+
+		for item in vk_api_answer.response.items:
+			self.all_files.append(
+				{
+					'file_id': item.id,
+					'owner_id': item.owner_id,
+					'filename': item.title,
+					'created': item.date,
+					'type': item.ext
+ 				}
+			)
