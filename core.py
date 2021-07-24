@@ -49,13 +49,18 @@ class VKDocsCore:
 		vk_api_answer = await self.api.docs.get(return_tags = True)
 
 		for item in vk_api_answer.response.items:
+			pic_gif_preview = None
+			if item.preview:
+				pic_gif_preview = item.preview.photo.sizes[0].src
+
 			self.all_files.append(
 				{
 					'file_id': item.id,
 					'owner_id': item.owner_id,
 					'filename': item.title,
 					'created': item.date,
-					'type': item.type
+					'type': item.type,
+					'preview': pic_gif_preview
  				}
 			)
 
