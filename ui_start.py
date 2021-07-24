@@ -21,6 +21,14 @@ class Ui(QtWidgets.QMainWindow):
 		#self.settings_button.clicked.connect(self.get_user_docs)
 		self.get_user_docs()
 
+	def contextMenuEvent(self, event):
+		#print(self.files.selectedItems()[0].vk_fileinfo)
+		contex_menu = QtWidgets.QMenu(self)
+		editAction = contex_menu.addAction("Edit")
+		action = contex_menu.exec_(self.mapToGlobal(event.pos()))
+		if action == editAction:
+			print('open edit file ui')
+
 	def run_async_func_fix(self, func, *args, **kwargs):
 		loop = asyncio.get_event_loop()
 		coroutine = func(*args, **kwargs)
@@ -48,20 +56,26 @@ class Ui(QtWidgets.QMainWindow):
 
 				preview = QtGui.QIcon(f"cachedpreviews/{str(file['file_id'])}.jpg")
 
-			self.add_file_to_view(type = file['type'], filename = file['filename'], preview = preview)
+			self.add_file_to_view(vk_file = file, preview = preview)
 
-	def add_file_to_view(self, type: int, filename: str, preview = None):
+	def add_file_to_view(self, vk_file: dict, preview = None):
+
+		filetype, filename = str(vk_file['type']), vk_file['filename']
 		item = QtWidgets.QListWidgetItem(filename, self.files)
-		if str(type) not in self.icons: #gif, pic
+		item.vk_fileinfo = vk_file
+
+		if filetype not in self.icons: #gif, pic
+
 			item.setIcon(self.icons['8'])
+			
 			if preview:
 				item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignBottom)
 				item.setSizeHint(QtCore.QSize(150, 150) +  QtCore.QSize(10,10))
 				item.setIcon(preview)
-				new_font = QtGui.QFont("Times", 7)
-				item.setFont(new_font)
+				item.setFont(QtGui.QFont("Segoe Ui", 9))
 		else:
-			item.setIcon(self.icons[str(type)])
+			item.setIcon(self.icons[filetype])
+
 		self.files.addItem(item)
 		self.files.setIconSize(QtCore.QSize(120,120))
 
