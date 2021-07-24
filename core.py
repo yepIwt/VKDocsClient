@@ -16,6 +16,21 @@ class VKDocsCore:
 		self.api = api_session.get_context()
 		self.all_files = []
 
+	async def async_download_by_url(self, url: str) -> bytes:
+
+		async with aiohttp.ClientSession() as session:
+			async with session.get(url) as resp:
+				file_in_stream = await resp.read()
+
+		await session.close()
+		return file_in_stream
+
+	async def async_save_file(self, path_to_save: str, file: bytes) -> None:
+
+		f = await aiofiles.open(path_to_save, 'wb')
+		await f.write(file)
+		await f.close()
+
 	async def upload_file(self, path, filename = None, tags = None) -> tuple:
 
 		vk_api_answer = await self.api.docs.get_upload_server()
@@ -44,6 +59,7 @@ class VKDocsCore:
 		return (True,'File Uploaded')
 
 	async def get_all_files(self) -> None:
+
 		self.all_files = []
 
 		vk_api_answer = await self.api.docs.get(return_tags = True)
@@ -64,7 +80,22 @@ class VKDocsCore:
  				}
 			)
 
-	async def download_file(self, owner_id: int, file_id: int, download_path: str):
+	async def download_preview_pic(self, url_to_download: str, file_id: int) -> bool:
+
+		if not os.access('cachedpreviews', os.R_OK):
+			try:
+				os.mkdir('cachedpreviews')
+			except:
+				raise 'Error Making Dir'
+
+		file_in_stream = await self.async_download_by_url(url_to_download)
+
+		save_file_to = os.path.join('cachedpreviews', str(file_id) + '.jpg')
+		await self.async_save_file(path_to_save = save_file_to, file = file_in_stream)
+
+		return True
+
+	async def download_file(self, owner_id: int, file_id: int, download_path: str) -> tuple:
 
 		param_docs = "{}_{}".format(owner_id, file_id)
 
@@ -75,22 +106,14 @@ class VKDocsCore:
 		filename = vk_api_answer.response[0].title
 		url_to_download = vk_api_answer.response[0].url
 		
-		async with aiohttp.ClientSession() as session:
-			async with session.get(url_to_download) as resp:
-				file_in_stream = await resp.read()
-
-		await session.close()
+		file_in_stream = self.async_download_by_url(url_to_download)
 
 		save_file_to = os.path.join(download_path, filename)
-		print(save_file_to)
-
-		f = await aiofiles.open(save_file_to, 'wb')
-		await f.write(file_in_stream)
-		await f.close()
+		await self.async_save_file(path_to_save = save_file_to, file = file_in_stream)
 
 		return (True, 'File downloaded')
 
-	async def edit_file(self, owner_id: int, file_id: int, new_title = None, new_tags = None):
+	async def edit_file(self, owner_id: int, file_id: int, new_title = None, new_tags = None) -> tuple:
 
 		if not new_title and not new_tags:
 			return (False, 'No edit data')
