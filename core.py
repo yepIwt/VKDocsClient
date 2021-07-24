@@ -55,7 +55,7 @@ class VKDocsCore:
 					'owner_id': item.owner_id,
 					'filename': item.title,
 					'created': item.date,
-					'type': item.ext
+					'type': item.type
  				}
 			)
 
