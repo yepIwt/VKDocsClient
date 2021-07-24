@@ -67,7 +67,7 @@ class VKDocsCore:
 		for item in vk_api_answer.response.items:
 			pic_gif_preview = None
 			if item.preview:
-				pic_gif_preview = item.preview.photo.sizes[0].src
+				pic_gif_preview = item.preview.photo.sizes[-1].src
 
 			self.all_files.append(
 				{
