@@ -27,14 +27,19 @@ class Ui_Edit_File_Info(QtWidgets.QMainWindow):
 
 		self.filename.setText(self.mutableFile['filename'])
 		
+		# Tags list
 		self.tableWidget.setColumnCount(2)
 		self.tableWidget.setShowGrid(0)
 		self.tableWidget.verticalHeader().setVisible(0)
 		self.tableWidget.horizontalHeader().setVisible(0)
 		self.tableWidget.setShowGrid(0)
-		#Tags 
+		
 		for tag in self.mutableFile['tags']:
 			self.add_new_tag(tag)
+
+		# Dialog buttons
+		self.exit_menu.accepted.connect(self.save)
+		self.exit_menu.rejected.connect(self.discard)
 
 	def add_new_tag(self, tagTitle: str):
 
@@ -60,3 +65,11 @@ class Ui_Edit_File_Info(QtWidgets.QMainWindow):
 		tag = self.tableWidget.indexAt(button.pos()).row()
 		self.tableWidget.removeRow(tag)
 		self.mutableFile['tags'].pop(tag)
+
+	def save(self):
+		new_filename = self.filename.text()
+		self.mutableFile['filename'] = new_filename
+		self.close()
+
+	def discard(self):
+		self.close()
