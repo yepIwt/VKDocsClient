@@ -76,7 +76,8 @@ class VKDocsCore:
 					'filename': item.title,
 					'created': item.date,
 					'type': item.type,
-					'preview': pic_gif_preview
+					'preview': pic_gif_preview,
+					'tags': item.tags,
  				}
 			)
 
