@@ -4,6 +4,8 @@ import sys, os
 from core import VKDocsCore
 import asyncio
 
+import edit_file_ui
+
 class Ui(QtWidgets.QMainWindow):
 
 	def __init__(self, vk_icons, vkdocs_object: VKDocsCore):
@@ -18,16 +20,22 @@ class Ui(QtWidgets.QMainWindow):
 		icon.addPixmap(QtGui.QPixmap("ui/res/icons/settings.ico"))
 		self.settings_button.setIcon(icon)
 		self.settings_button.setIconSize(size)
-		#self.settings_button.clicked.connect(self.get_user_docs)
 		self.get_user_docs()
 
 	def contextMenuEvent(self, event):
-		#print(self.files.selectedItems()[0].vk_fileinfo)
-		contex_menu = QtWidgets.QMenu(self)
-		editAction = contex_menu.addAction("Edit")
-		action = contex_menu.exec_(self.mapToGlobal(event.pos()))
-		if action == editAction:
-			print('open edit file ui')
+		if len(self.files.selectedItems()) == 1:
+			selected_item = self.files.selectedItems()[0]
+			contex_menu = QtWidgets.QMenu(self)
+			editAction = contex_menu.addAction("Edit")
+			action = contex_menu.exec_(self.mapToGlobal(event.pos()))
+
+			if action == editAction:
+				self.editor = edit_file_ui.Ui_Edit_File_Info(
+					vk_file_info = selected_item.vk_fileinfo,
+					core_edit_file = "",
+					path_vk_icons = self.icons.path_of_vk_icons
+				)
+				self.editor.show()
 
 	def run_async_func_fix(self, func, *args, **kwargs):
 		loop = asyncio.get_event_loop()
@@ -64,9 +72,9 @@ class Ui(QtWidgets.QMainWindow):
 		item = QtWidgets.QListWidgetItem(filename, self.files)
 		item.vk_fileinfo = vk_file
 
-		if filetype not in self.icons: #gif, pic
+		if filetype not in self.icons.qtobjects: #gif, pic
 
-			item.setIcon(self.icons['8'])
+			item.setIcon(self.icons.qtobjects['8'])
 			
 			if preview:
 				item.setTextAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignBottom)
@@ -74,14 +82,14 @@ class Ui(QtWidgets.QMainWindow):
 				item.setIcon(preview)
 				item.setFont(QtGui.QFont("Segoe Ui", 9))
 		else:
-			item.setIcon(self.icons[filetype])
+			item.setIcon(self.icons.qtobjects[filetype])
 
 		self.files.addItem(item)
 		self.files.setIconSize(QtCore.QSize(120,120))
 
 if __name__ == '__main__':
 	app = QtWidgets.QApplication(sys.argv)
-	from icons_manager import vk_icons
+	import vk_icons #QPixmap: Must construct a QGuiApplication before a QPixmap
 
 	token = ""
 	vk_upl = VKDocsCore(token)
