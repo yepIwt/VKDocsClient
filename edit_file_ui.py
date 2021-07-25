@@ -33,6 +33,7 @@ class Ui_Edit_File_Info(QtWidgets.QMainWindow):
 		self.tableWidget.verticalHeader().setVisible(0)
 		self.tableWidget.horizontalHeader().setVisible(0)
 		self.tableWidget.setShowGrid(0)
+		self.add_tag.clicked.connect(self.add_new_tag_from_gui)
 		
 		for tag in self.mutableFile['tags']:
 			self.add_new_tag(tag)
@@ -66,9 +67,18 @@ class Ui_Edit_File_Info(QtWidgets.QMainWindow):
 		self.tableWidget.removeRow(tag)
 		self.mutableFile['tags'].pop(tag)
 
+	def add_new_tag_from_gui(self):
+		new_tag_title = self.new_tag_name.text()
+		if new_tag_title:
+			item_exist = self.tableWidget.findItems(new_tag_title, QtCore.Qt.MatchExactly)
+			if not item_exist:
+				self.add_new_tag(new_tag_title)
+				self.mutableFile['tags'].append(new_tag_title)
+
 	def save(self):
 		new_filename = self.filename.text()
 		self.mutableFile['filename'] = new_filename
+		print(self.mutableFile)
 		self.close()
 
 	def discard(self):
