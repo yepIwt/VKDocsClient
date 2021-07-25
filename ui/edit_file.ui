@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>685</width>
-    <height>226</height>
+    <width>630</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -143,19 +143,29 @@ padding: 5px;
              </item>
             </layout>
            </item>
-           <item>
-            <widget class="QListWidget" name="tags">
-             <property name="styleSheet">
-              <string notr="true">border: 1px solid;
-border-color: #e5e8ec;
-
-border-width: 1px;
-padding: 5px;
-</string>
-             </property>
-            </widget>
-           </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QTableWidget" name="tableWidget">
+           <property name="styleSheet">
+            <string notr="true">padding: 5px</string>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="tabKeyNavigation">
+            <bool>false</bool>
+           </property>
+           <property name="showDropIndicator" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="dragDropOverwriteMode">
+            <bool>false</bool>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::NoSelection</enum>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

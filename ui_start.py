@@ -86,14 +86,3 @@ class Ui(QtWidgets.QMainWindow):
 
 		self.files.addItem(item)
 		self.files.setIconSize(QtCore.QSize(120,120))
-
-if __name__ == '__main__':
-	app = QtWidgets.QApplication(sys.argv)
-	import vk_icons #QPixmap: Must construct a QGuiApplication before a QPixmap
-
-	token = ""
-	vk_upl = VKDocsCore(token)
-
-	window = Ui(vk_icons, vk_upl)
-	window.show()
-	app.exec_()
