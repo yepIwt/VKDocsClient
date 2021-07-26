@@ -114,10 +114,7 @@ class VKDocsCore:
 
 		return (True, 'File downloaded')
 
-	async def edit_file(self, owner_id: int, file_id: int, new_title = None, new_tags = None) -> tuple:
-
-		if not new_title and not new_tags:
-			return (False, 'No edit data')
+	async def edit_file(self, owner_id: int, file_id: int, filename = None, tags = None, *args, **kwargs) -> tuple:
 
 		param_docs = "{}_{}".format(owner_id, file_id)
 
@@ -126,14 +123,11 @@ class VKDocsCore:
 		if not vk_api_answer.response:
 			return (False, 'No such file')
 
-		thats_file = vk_api_answer.response[0]
-		prev_title, prev_tags = thats_file.title, thats_file.tags
-
 		vk_api_answer = await self.api.docs.edit(
 			owner_id = owner_id,
 			doc_id = file_id,
-			title = new_title or prev_title,
-			tags = new_tags or prev_tags, 
+			title = filename,
+			tags = tags, 
 		)
 
 		if vk_api_answer.response == 1:
