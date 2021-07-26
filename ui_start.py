@@ -32,9 +32,11 @@ class Ui(QtWidgets.QMainWindow):
 			if action == editAction:
 				self.editor = edit_file_ui.Ui_Edit_File_Info(
 					vk_file_info = selected_item.vk_fileinfo,
-					core_edit_file = "",
 					path_vk_icons = self.icons.path_of_vk_icons
 				)
+
+				# when editor closed
+				self.editor.window_closed.connect(self.edit_file_ui_closed)
 				self.editor.show()
 
 	def run_async_func_fix(self, func, *args, **kwargs):
@@ -42,7 +44,14 @@ class Ui(QtWidgets.QMainWindow):
 		coroutine = func(*args, **kwargs)
 		loop.run_until_complete(coroutine)
 
+	def edit_file_ui_closed(self):
+		if self.editor.flag == True: # expl bellow
+			self.run_async_func_fix(func = self.core.edit_file, **self.editor.mutableFile)
+			self.get_user_docs()
+
 	def get_user_docs(self):
+
+		self.files.clear()
 
 		self.run_async_func_fix(self.core.get_all_files)
 

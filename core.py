@@ -127,7 +127,7 @@ class VKDocsCore:
 			owner_id = owner_id,
 			doc_id = file_id,
 			title = filename,
-			tags = tags, 
+			tags = tags,
 		)
 
 		if vk_api_answer.response == 1:

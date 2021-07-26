@@ -8,11 +8,14 @@ from datetime import datetime
 
 class Ui_Edit_File_Info(QtWidgets.QMainWindow):
 
-	def __init__(self, vk_file_info: dict, core_edit_file, path_vk_icons):
+	window_closed = QtCore.pyqtSignal()
+
+	def __init__(self, vk_file_info: dict, path_vk_icons):
 		super(Ui_Edit_File_Info, self).__init__()
 		uic.loadUi('ui/edit_file.ui', self)
 
 		self.mutableFile = vk_file_info
+		self.flag = False # IF False user close window Else save
 
 		if self.mutableFile['preview']:
 			file_id = str(self.mutableFile['file_id'])
@@ -76,10 +79,15 @@ class Ui_Edit_File_Info(QtWidgets.QMainWindow):
 				self.mutableFile['tags'].append(new_tag_title)
 
 	def save(self):
+		self.flag = True
 		new_filename = self.filename.text()
 		self.mutableFile['filename'] = new_filename
-		print(self.mutableFile)
 		self.close()
 
 	def discard(self):
+		self.flag = False
 		self.close()
+
+	def closeEvent(self, event):
+		self.window_closed.emit()
+		event.accept()
