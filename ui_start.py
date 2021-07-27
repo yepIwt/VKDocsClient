@@ -23,31 +23,50 @@ class Ui(QtWidgets.QMainWindow):
 		self.get_user_docs()
 
 	def contextMenuEvent(self, event):
+		contex_menu = QtWidgets.QMenu(self)
+
+		editAction = 0 # fixme
 		if len(self.files.selectedItems()) == 1:
-			selected_item = self.files.selectedItems()[0]
-			contex_menu = QtWidgets.QMenu(self)
 			editAction = contex_menu.addAction("Edit")
-			action = contex_menu.exec_(self.mapToGlobal(event.pos()))
 
-			if action == editAction:
-				self.editor = edit_file_ui.Ui_Edit_File_Info(
-					vk_file_info = selected_item.vk_fileinfo,
+		deleteAction = contex_menu.addAction("Delete")
+		selected_items = self.files.selectedItems()
+
+		action = contex_menu.exec_(self.mapToGlobal(event.pos()))
+
+		if action == deleteAction:
+			self.delete_files_from_gui(files = selected_items)
+		elif action == editAction:
+			self.open_editor(mutableitem = selected_items[0].vk_fileinfo)
+
+	def open_editor(self, mutableitem: dict):
+		self.editor = edit_file_ui.Ui_Edit_File_Info(
+					vk_file_info = mutableitem,
 					path_vk_icons = self.icons.path_of_vk_icons
-				)
+		)
+		
+		# when editor closed
+		self.editor.window_closed.connect(self.edit_file_ui_closed)
+		self.editor.show()
 
-				# when editor closed
-				self.editor.window_closed.connect(self.edit_file_ui_closed)
-				self.editor.show()
+	def edit_file_ui_closed(self):
+		if self.editor.flag == True: # expl in class
+			self.run_async_func_fix(func = self.core.edit_file, **self.editor.mutableFile)
+			self.get_user_docs()
+
+	def delete_files_from_gui(self, files: list):
+		
+		for file_to_delete in files:
+			vk_info = file_to_delete.vk_fileinfo
+			self.run_async_func_fix(self.core.delete_file, **vk_info)
+
+		self.get_user_docs()
 
 	def run_async_func_fix(self, func, *args, **kwargs):
 		loop = asyncio.get_event_loop()
 		coroutine = func(*args, **kwargs)
 		loop.run_until_complete(coroutine)
 
-	def edit_file_ui_closed(self):
-		if self.editor.flag == True: # expl bellow
-			self.run_async_func_fix(func = self.core.edit_file, **self.editor.mutableFile)
-			self.get_user_docs()
 
 	def get_user_docs(self):
 
