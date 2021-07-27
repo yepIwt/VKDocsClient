@@ -134,3 +134,12 @@ class VKDocsCore:
 			return (True, 'File edited')
 
 		return (False, vk_api_answer.response)
+
+	async def delete_file(self, owner_id: int, file_id: int, *args, **kwargs):
+
+		vk_api_answer = await self.api.docs.delete(owner_id = owner_id, doc_id = file_id)
+
+		if vk_api_answer.respone == 1:
+			return (True, 'File deleted')
+
+		return (False, vk_api_answer.response)
