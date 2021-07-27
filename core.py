@@ -139,7 +139,7 @@ class VKDocsCore:
 
 		vk_api_answer = await self.api.docs.delete(owner_id = owner_id, doc_id = file_id)
 
-		if vk_api_answer.respone == 1:
+		if vk_api_answer == 1:
 			return (True, 'File deleted')
 
-		return (False, vk_api_answer.response)
+		return (False, vk_api_answer)
