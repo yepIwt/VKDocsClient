@@ -107,6 +107,13 @@ class VKDocsCore:
 
 		return filename, ext, url_to_download
 
+	async def get_filename_with_ext(self, title: str, ext: str):
+
+		if title[-3:] == ext:
+			return title
+
+		title += '.' + ext
+		return title
 
 	async def download_file(self, owner_id: int, file_id: int, download_path: str) -> tuple:
 
