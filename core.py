@@ -78,6 +78,7 @@ class VKDocsCore:
 					'type': item.type,
 					'preview': pic_gif_preview,
 					'tags': item.tags,
+					'url': item.url,
  				}
 			)
 
