@@ -96,16 +96,24 @@ class VKDocsCore:
 
 		return True
 
-	async def download_file(self, owner_id: int, file_id: int, download_path: str) -> tuple:
+	async def get_download_file_info(self, owner_id: int, file_id: int):
 
 		param_docs = "{}_{}".format(owner_id, file_id)
+
+		vk_api_answer = await self.api.docs.get_by_id(docs = param_docs)
+		filename = vk_api_answer.response[0].title
+		ext = vk_api_answer.response[0].ext
+		url_to_download = vk_api_answer.response[0].url
+
+		return filename, ext, url_to_download
+
+
+	async def download_file(self, owner_id: int, file_id: int, download_path: str) -> tuple:
 
 		if not os.access(download_path, os.R_OK):
 			return (False, 'Error dir')
 
-		vk_api_answer = await self.api.docs.get_by_id(docs = param_docs)
-		filename = vk_api_answer.response[0].title
-		url_to_download = vk_api_answer.response[0].url
+		filename, _, url_to_download = await get_download_file_info(owner_id, file_id)
 		
 		file_in_stream = self.async_download_by_url(url_to_download)
 
