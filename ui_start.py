@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, uic, QtCore, QtGui, Qt
 import sys, os
 
 from core import VKDocsCore
+from download_core import DownloadUi
 import asyncio
 
 import edit_file_ui
@@ -20,7 +21,9 @@ class Ui(QtWidgets.QMainWindow):
 		icon.addPixmap(QtGui.QPixmap("ui/res/icons/settings.ico"))
 		self.settings_button.setIcon(icon)
 		self.settings_button.setIconSize(size)
+		self.files.doubleClicked.connect(self.double_clicked)
 		self.get_user_docs()
+
 
 	def contextMenuEvent(self, event):
 		contex_menu = QtWidgets.QMenu(self)
@@ -30,6 +33,7 @@ class Ui(QtWidgets.QMainWindow):
 			editAction = contex_menu.addAction("Edit")
 
 		deleteAction = contex_menu.addAction("Delete")
+		downloadAction = contex_menu.addAction("Download")
 		selected_items = self.files.selectedItems()
 
 		action = contex_menu.exec_(self.mapToGlobal(event.pos()))
@@ -38,6 +42,23 @@ class Ui(QtWidgets.QMainWindow):
 			self.delete_files_from_gui(files = selected_items)
 		elif action == editAction:
 			self.open_editor(mutableitem = selected_items[0].vk_fileinfo)
+		elif action == downloadAction:
+			self.menus = []
+			for sel_item in selected_items:
+				prop = sel_item.vk_fileinfo
+				filename = self.core.get_filename_with_ext(prop['filename'], prop['ext'])
+				
+				self.down_menu = DownloadUi(prop['url'], filename, self.close_downloader)
+				self.down_menu.resize(400, 100)
+				self.down_menu.show()
+
+	def close_downloader(self):
+		self.down_menu.close()
+
+	def double_clicked(self):
+		if len(self.files.selectedItems()) >= 1:
+			sel_item = self.files.selectedItems()[-1]
+			self.open_editor(mutableitem = sel_item.vk_fileinfo)
 
 	def open_editor(self, mutableitem: dict):
 		self.editor = edit_file_ui.Ui_Edit_File_Info(
@@ -66,7 +87,6 @@ class Ui(QtWidgets.QMainWindow):
 		loop = asyncio.get_event_loop()
 		coroutine = func(*args, **kwargs)
 		loop.run_until_complete(coroutine)
-
 
 	def get_user_docs(self):
 

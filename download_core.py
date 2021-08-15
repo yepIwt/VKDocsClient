@@ -13,10 +13,11 @@ class Signaller(QtCore.QObject):
 
 class DownloadThread(QtCore.QObject):
 	
-	def __init__(self, url, path):
+	def __init__(self, url, path, close_func = None):
 		super().__init__()
 		self.url = url
 		self.path = path
+		self.close_func = close_func
 
 	def Handle_Progress(self, blocknum, blocksize, totalsize):
 		readed_data = blocknum * blocksize
@@ -30,7 +31,11 @@ class DownloadThread(QtCore.QObject):
 
 			if download_percentage == 100:
 				self.func_to_emit.emit(100)
-				self.thread().quit()
+
+				if self.close_func:
+					self.close_func()
+				else:
+					self.thread().quit()
 
 	def Download(self,signaller):
 		self.func_to_emit = signaller.progress_changed
@@ -38,10 +43,11 @@ class DownloadThread(QtCore.QObject):
 
 class DownloadUi(QtWidgets.QMainWindow):
 
-	def __init__(self, download_url: str, filename: str):
+	def __init__(self, download_url: str, filename: str, func_to_close = None):
 		super().__init__()
 		self.url = download_url
 		self.filename = filename
+		self.close_window = func_to_close
 
 		self.centralWidget = QtWidgets.QWidget()
 		self.setCentralWidget(self.centralWidget)
@@ -73,7 +79,7 @@ class DownloadUi(QtWidgets.QMainWindow):
 		signaller.progress_changed.connect(status_bar.setValue)
 
 		path_to_save_file = self.layout.itemAt(0).widget().text()
-		download_thread = DownloadThread(self.url, path_to_save_file)
+		download_thread = DownloadThread(self.url, path_to_save_file, self.close_window)
 
 		thread = threading.Thread(
 			target=download_thread.Download,
@@ -84,7 +90,7 @@ class DownloadUi(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
 	app = QtWidgets.QApplication(sys.argv)
-	w = DownloadUi('https://gph.is/2K71ZPc','mygif.gif')
+	w = DownloadUi('link/to/file','mygif.gif')
 	w.resize(400, 100)
 	w.show()
 	sys.exit(app.exec_())
