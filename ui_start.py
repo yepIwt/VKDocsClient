@@ -134,3 +134,12 @@ class Ui(QtWidgets.QMainWindow):
 
 		self.files.addItem(item)
 		self.files.setIconSize(QtCore.QSize(120,120))
+
+if __name__ == "__main__":
+	app = QtWidgets.QApplication(sys.argv)
+	VK_API_DOCS_TOKEN = ""
+	cor = VKDocsCore(VK_API_DOCS_TOKEN)
+	import vk_icons
+	w = Ui(vk_icons, cor)
+	w.show()
+	sys.exit(app.exec_())
