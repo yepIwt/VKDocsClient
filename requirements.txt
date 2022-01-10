@@ -1,0 +1,4 @@
+aiofiles==0.8.0
+aiohttp==3.7.4.post0
+PyQt5==5.15.6
+vkwave==0.2.13
